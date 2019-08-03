@@ -22,10 +22,12 @@ app.post('/movie', (req, res, next)=>{
 })
 
 app.get('/movie', (req, res, next)=>{
-  Movie.findAll()
-  .then(movies => res.json(movies))
-  .catch(next)
-})
+  const limit = req.query.limit || 25
+  const offset = req.query.offset || 0
+  Promise.all([Movie.count(), Movie.findAll({limit, offset})])
+  .then(([total, movies]) => {
+    res.json({movies, total})})
+  .catch(next)})
 
 app.get('/movie/:id', (req, res, next) =>{
   Movie.findByPk(req.params.id)
